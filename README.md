@@ -12,7 +12,7 @@ Repositório com os projetos desenvolvidos na disciplina de Computação Gráfic
 | `Grau-A-M4-Iluminacao` | Iluminação Phong |
 | `Grau-A-M5-Camera` | Câmera em primeira pessoa |
 | `Grau-A-M6-Trajetorias` | Trajetórias e animação |
-| `Grau-B-Vivencial-1` | Vivencial 1 |
+| `Grau-B-Vivencial-1` | Visualizador e Manipulador de Objetos 3D em OpenGL |
 | `Grau-B-Vivencial-2` | Iluminação de 3 pontos com bola |
 | `Grau-B-Projeto-Final` | Cena de futebol completa |
 | `Assets/` | Modelos OBJ, texturas e materiais compartilhados |
