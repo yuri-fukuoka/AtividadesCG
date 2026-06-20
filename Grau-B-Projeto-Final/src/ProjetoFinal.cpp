@@ -13,6 +13,7 @@
  *   R             : rotacionar objeto (Y automatico)
  *   [ / ]         : diminuir / aumentar escala
  *   ESPACO        : iniciar/parar trajetoria da bola
+ *   J/L/U/O/P/N   : mover luz (X/Y/Z)
  *   ESC           : sair
  */
 
@@ -113,6 +114,7 @@ struct Bezier {
     glm::vec3 p0, p1, p2, p3;
     float t;
     bool  active;
+    bool  curveSet;
 
     glm::vec3 eval()
     {
@@ -130,6 +132,7 @@ double              lastX = SCR_W/2.0, lastY = SCR_H/2.0;
 float               deltaTime = 0.0f, lastFrame = 0.0f;
 bool                keys[1024]   = {};
 Bezier              bezier;
+int                 renderMode   = 0;   // 0=normal 1=sem textura 2=so ambient
 glm::vec3           lightPos(5.0f, 10.0f, 5.0f);
 glm::vec3           initialLightPos(5.0f, 10.0f, 5.0f);
 // 3 luzes derivadas da lightPos
@@ -196,11 +199,19 @@ void key_callback(GLFWwindow* w, int key, int /*sc*/, int action, int /*mod*/)
         std::cout << "Rotacao parada." << std::endl;
     }
 
+    if (key == GLFW_KEY_M && action == GLFW_PRESS)
+    {
+        renderMode = (renderMode + 1) % 3;
+        const char* names[] = {"Normal (textura + material)", "Sem textura (so material)", "So ambient (ka)"};
+        std::cout << "Modo de material: " << names[renderMode] << std::endl;
+    }
+
     if (key == GLFW_KEY_H && action == GLFW_PRESS && !objects.empty())
     {
         objects[0].position = objects[0].initialPosition;
         bezier.active = false;
         bezier.t      = 0.0f;
+        bezier.curveSet = false;
         std::cout << "Bola resetada para posicao inicial." << std::endl;
     }
 
@@ -217,6 +228,7 @@ void key_callback(GLFWwindow* w, int key, int /*sc*/, int action, int /*mod*/)
         lightPos      = initialLightPos;
         bezier.active = false;
         bezier.t      = 0.0f;
+        bezier.curveSet = false;
         selectedObj   = 0;
         std::cout << "Cena resetada." << std::endl;
     }
@@ -226,14 +238,18 @@ void key_callback(GLFWwindow* w, int key, int /*sc*/, int action, int /*mod*/)
         bezier.active = !bezier.active;
         if (bezier.active)
         {
-            bezier.t = 0.0f;
-            bezier.p0 = objects[0].position;
-            glm::vec3 goal = objects[1].position;
-            float cx = goal.x - 5.0f; // compensa offset geometrico do OBJ da goleira
-            bezier.p3 = glm::vec3(cx, goal.y + 1.2f, goal.z - 0.5f);
-            bezier.p1 = glm::vec3(cx, bezier.p0.y + 4.0f, bezier.p0.z - 3.0f);
-            bezier.p2 = glm::vec3(cx, bezier.p3.y + 3.0f, bezier.p3.z + 2.0f);
-            std::cout << "Trajetoria iniciada!" << std::endl;
+            if (!bezier.curveSet)
+            {
+                bezier.t = 0.0f;
+                bezier.p0 = objects[0].position;
+                glm::vec3 goal = objects[1].position;
+                float cx = goal.x - 5.0f; // compensa offset geometrico do OBJ da goleira
+                bezier.p3 = glm::vec3(cx, goal.y + 1.2f, goal.z - 0.5f);
+                bezier.p1 = glm::vec3(cx, bezier.p0.y + 4.0f, bezier.p0.z - 3.0f);
+                bezier.p2 = glm::vec3(cx, bezier.p3.y + 3.0f, bezier.p3.z + 2.0f);
+                bezier.curveSet = true;
+            }
+            std::cout << "Trajetoria iniciada/retomada!" << std::endl;
         }
         else
         {
@@ -278,6 +294,7 @@ const GLchar* fragSrc = "#version 450\n"
     "uniform vec3 backLightPos, backLightColor;\n"
     "uniform vec3 viewPos;\n"
     "uniform bool flipNormals;\n"
+    "uniform int renderMode;\n"
     "out vec4 outColor;\n"
     "vec3 calcLight(vec3 lPos, vec3 lColor, vec3 N, vec3 V, vec3 tex){\n"
     "  vec3 L = normalize(lPos - fragPos);\n"
@@ -290,8 +307,9 @@ const GLchar* fragSrc = "#version 450\n"
     "  vec3 N = normalize(fragNormal);\n"
     "  if (flipNormals) N = -N;\n"
     "  vec3 V = normalize(viewPos - fragPos);\n"
-    "  vec3 tex = texture(texture1, fragUV).rgb;\n"
+    "  vec3 tex = (renderMode == 0) ? texture(texture1, fragUV).rgb : vec3(1.0);\n"
     "  vec3 ambient = ka * 0.1;\n"
+    "  if (renderMode == 2) { outColor = vec4(ka, 1.0); return; }\n"
     "  vec3 lighting = calcLight(keyLightPos,  keyLightColor,  N, V, tex)\n"
     "               + calcLight(fillLightPos, fillLightColor, N, V, tex)\n"
     "               + calcLight(backLightPos, backLightColor, N, V, tex);\n"
@@ -418,12 +436,12 @@ SceneObject loadObjectFromJSON(const std::string& block, const std::string& exeD
 
     if (obj.name == "bola")
     {
-        // Exatamente igual ao Vivencial2: material fixo + textura branca 1x1
         obj.mat.ka = glm::vec3(0.1f);
         obj.mat.kd = glm::vec3(0.8f, 0.8f, 0.85f);
         obj.mat.ks = glm::vec3(1.0f);
         obj.mat.ns = 64.0f;
-        obj.texID  = createWhiteTexture();
+        std::string texPath = jsonStr(block, "texture");
+        obj.texID  = texPath.empty() ? createWhiteTexture() : loadTexture(exeDir + "/" + texPath);
     }
     else
     {
@@ -602,6 +620,7 @@ int main()
     GLint uBackLightCol = glGetUniformLocation(shader, "backLightColor");
     GLint uViewPos      = glGetUniformLocation(shader, "viewPos");
     GLint uFlipNormals  = glGetUniformLocation(shader, "flipNormals");
+    GLint uRenderMode   = glGetUniformLocation(shader, "renderMode");
     GLint uTex          = glGetUniformLocation(shader, "texture1");
 
     glUniform3fv(uKeyLightCol,  1, glm::value_ptr(keyLightColor));
@@ -616,6 +635,7 @@ int main()
 
     bezier.active = false;
     bezier.t      = 0.0f;
+    bezier.curveSet = false;
 
     std::cout << "\n=== Projeto Final - Cena de Futebol ===" << std::endl;
     std::cout << "WASD        : mover camera" << std::endl;
@@ -626,6 +646,8 @@ int main()
     std::cout << "R           : ligar/desligar rotacao" << std::endl;
     std::cout << "[ / ]       : diminuir / aumentar escala" << std::endl;
     std::cout << "ESPACO      : iniciar/parar chute da bola" << std::endl;
+    std::cout << "M           : alternar modo (textura / so material / so ambient)" << std::endl;
+    std::cout << "J/L/U/O/P/N : mover luz (X/Y/Z)" << std::endl;
     std::cout << "ESC         : sair" << std::endl;
 
     // ─── Loop principal ───────────────────────────────────────────────────────
@@ -658,14 +680,14 @@ int main()
             if (keys[GLFW_KEY_LEFT_BRACKET])  sel.scale = std::max(0.001f, sel.scale - 0.5f * deltaTime);
         }
 
-        // Controle da luz (J/L = X, U/O = Y, P/semicolon = Z)
+        // Controle da luz (J/L = X, U/O = Y, P/N = Z)
         const float lightStep = 8.0f * deltaTime;
         if (keys[GLFW_KEY_J]) lightPos.x -= lightStep;
         if (keys[GLFW_KEY_L]) lightPos.x += lightStep;
         if (keys[GLFW_KEY_U]) lightPos.y += lightStep;
         if (keys[GLFW_KEY_O]) lightPos.y -= lightStep;
         if (keys[GLFW_KEY_P]) lightPos.z -= lightStep;
-        if (keys[GLFW_KEY_SEMICOLON]) lightPos.z += lightStep;
+        if (keys[GLFW_KEY_N]) lightPos.z += lightStep;
 
         // Trajetoria Bezier da bola (objeto 0)
         if (bezier.active && !objects.empty())
@@ -688,6 +710,7 @@ int main()
         glm::mat4 view = camera.view();
         glUniformMatrix4fv(uView, 1, GL_FALSE, glm::value_ptr(view));
         glUniform3fv(uViewPos, 1, glm::value_ptr(camera.pos));
+        glUniform1i(uRenderMode, renderMode);
         // 3 luzes: key (frontal), fill (oposto), back (atras)
         glm::vec3 keyPos  = lightPos;
         glm::vec3 fillPos = glm::vec3(-lightPos.x, lightPos.y * 0.6f,  lightPos.z);

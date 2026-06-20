@@ -18,7 +18,7 @@
             "name": "bola",
             "obj":  "../Assets/Pallone/Ball OBJ.obj",
             "mtl":  "",
-            "texture": "",
+            "texture": "../Assets/Tiles081_1K-JPG/Tiles081_1K-JPG_Color.jpg",
             "position": [0.0, 0.5, 5.0],
             "rotation": [0.0, 0.0, 0.0],
             "scale": 0.5
@@ -27,7 +27,7 @@
             "name": "goleira",
             "obj":  "../Assets/Football Goal/football goal.obj",
             "mtl":  "../Assets/Football Goal/football_goal.mtl",
-            "texture": "",
+            "texture": "../Assets/Bricks104_1K-JPG/Bricks104_1K-JPG_Color.jpg",
             "position": [5.0, 0.0, -8.0],
             "rotation": [0.0, 180.0, 0.0],
             "scale": 0.02

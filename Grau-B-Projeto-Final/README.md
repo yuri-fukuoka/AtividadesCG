@@ -64,6 +64,11 @@ sudo apt install libglfw3-dev libglm-dev libgl1-mesa-dev
 | `U / O` | Mover luz no eixo Y (cima/baixo) |
 | `P / ;` | Mover luz no eixo Z |
 
+### Visualização de Material
+| Tecla | Ação |
+|---|---|
+| `M` | Alternar modo de exibição: Normal → Só material (sem textura) → Só ambient (ka) |
+
 ### Geral
 | Tecla | Ação |
 |---|---|
@@ -76,6 +81,8 @@ sudo apt install libglfw3-dev libglm-dev libgl1-mesa-dev
 | `Assets/Pallone/Ball OBJ.obj` | Modelo da bola | [free3d.com — Football Ball](https://free3d.com/3d-model/football-ball--64059.html) |
 | `Assets/Football Goal/football goal.obj` | Modelo da goleira | [free3d.com — Football Goal](https://free3d.com/3d-model/football-goal-473670.html) |
 | `Assets/Ground003_1K-JPG/Ground003_1K-JPG_Color.jpg` | Textura do chão (grama/terra) | [ambientCG — Ground003](https://ambientcg.com/view?id=Ground003) |
+| `Assets/Tiles081_1K-JPG/Tiles081_1K-JPG_Color.jpg` | Textura da bola (azulejos) | [ambientCG — Tiles081](https://ambientcg.com/view?id=Tiles081) |
+| `Assets/Bricks104_1K-JPG/Bricks104_1K-JPG_Color.jpg` | Textura da goleira (tijolos) | [ambientCG — Bricks104](https://ambientcg.com/view?id=Bricks104) |
 
 ### Licenças e Processamento
 
