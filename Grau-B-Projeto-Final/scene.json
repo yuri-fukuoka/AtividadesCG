@@ -1,0 +1,41 @@
+{
+    "camera": {
+        "position": [0.0, 1.5, 8.0],
+        "yaw": -90.0,
+        "pitch": -5.0,
+        "fov": 45.0,
+        "near": 0.1,
+        "far": 200.0,
+        "speed": 5.0,
+        "sensitivity": 0.02
+    },
+    "light": {
+        "position": [5.0, 10.0, 5.0],
+        "color": [1.0, 1.0, 0.95]
+    },
+    "objects": [
+        {
+            "name": "bola",
+            "obj":  "../Assets/Pallone/Ball OBJ.obj",
+            "mtl":  "",
+            "texture": "",
+            "position": [0.0, 0.5, 5.0],
+            "rotation": [0.0, 0.0, 0.0],
+            "scale": 0.5
+        },
+        {
+            "name": "goleira",
+            "obj":  "../Assets/Football Goal/football goal.obj",
+            "mtl":  "../Assets/Football Goal/football_goal.mtl",
+            "texture": "",
+            "position": [5.0, 0.0, -8.0],
+            "rotation": [0.0, 180.0, 0.0],
+            "scale": 0.02
+        }
+    ],
+    "ground": {
+        "size": 30.0,
+        "texture": "../Assets/Ground003_1K-JPG/Ground003_1K-JPG_Color.jpg",
+        "tiling": 6.0
+    }
+}

@@ -1,0 +1,42 @@
+# Cubo simples com coordenadas de textura para o M3
+
+o Cube
+
+# Vrtices (8 cantos)
+v -0.5 -0.5 -0.5
+v  0.5 -0.5 -0.5
+v  0.5  0.5 -0.5
+v -0.5  0.5 -0.5
+v -0.5 -0.5  0.5
+v  0.5 -0.5  0.5
+v  0.5  0.5  0.5
+v -0.5  0.5  0.5
+
+# Coordenadas de textura (4 cantos do quadrado de textura)
+vt 0.0 0.0
+vt 1.0 0.0
+vt 1.0 1.0
+vt 0.0 1.0
+
+# Material
+mtllib cube.mtl
+usemtl TexturedMaterial
+
+# Faces - 6 faces, 4 vrtices cada (sero trianguladas como 2 tringulos)
+# Frente (z = +0.5)
+f 5/1 6/2 7/3 8/4
+
+# Trs (z = -0.5)
+f 2/1 1/2 4/3 3/4
+
+# Direita (x = +0.5)
+f 6/1 2/2 3/3 7/4
+
+# Esquerda (x = -0.5)
+f 1/1 5/2 8/3 4/4
+
+# Cima (y = +0.5)
+f 8/1 7/2 3/3 4/4
+
+# Baixo (y = -0.5)
+f 1/1 2/2 6/3 5/4
